@@ -18,12 +18,6 @@
 
 BASE_COMMAND=$META_BASECMD;
 
-function _array_join {
-        local $IFS = "$1";
-        shift;
-        echo "$*"
-}
-
 
 function find_meta {
         local base="$1"; shift;
@@ -39,16 +33,16 @@ function find_meta {
 
 
 function invoke_meta_command {
-        BASE_COMMAND=$1; shift;
+        local BASE_COMMAND=$1; shift;  # Use dynamic scoping to enforce base command here.
         
-        declare -a args=( $(find_meta "meta" $@) );
+        declare -a args=( $(find_meta $BASE_COMMAND $@) );
         local command=${args[0]};
         unset args[0];
 
         echo "COMMAND: $command";
         echo "ARGS: ${args[@]}";
 
-        if [ "$command" == "meta" ]; then
+        if [ "$command" == $BASE_COMMAND ]; then
                 echo "Command not found";
         else
                 $command ${args[@]}
@@ -61,4 +55,4 @@ function meta-help {
 }
 
 
-invoke_meta_command "meta" $@
+invoke_meta_command $@
