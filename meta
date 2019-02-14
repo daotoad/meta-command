@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# A meta-XXX command runner.
+# Extensible meta utility toolkit.
+# Can run commands, aliases and functions.
+# To add a command, create a runnable item named meta-<command> and add it to your path or your shell
+# environment as appropriate.
+#
+# TODO Items:
+#
+#  * make utility function to find *all* meta-XXX commands available.
+#  * Use utility to make command line completion complete from available commands.
+#  * Use utility to make meta-help list the commands and a descriptor.
+#    * perhaps define a protocol for getting help and completion info from the matched command.
+#    * meta-COMMAND --BCP=description means "Give me a one line description of yourself"
+#    * meta-COMMAND --BCP=complete ARGS means "Return completion info for yourself"
+#  
+
+BASE_COMMAND=$META_BASECMD;
+
+function _array_join {
+        local $IFS = "$1";
+        shift;
+        echo "$*"
+}
+
+
+function find_meta {
+        local base="$1"; shift;
+        local cmd="$1";
+
+        if ! type "$base-$cmd" > /dev/null 2>&1; then
+                echo "$base $*";
+        else
+                shift;
+                echo "$base-$cmd $*";
+        fi;
+}
+
+
+function invoke_meta_command {
+        BASE_COMMAND=$1; shift;
+        
+        declare -a args=( $(find_meta "meta" $@) );
+        local command=${args[0]};
+        unset args[0];
+
+        echo "COMMAND: $command";
+        echo "ARGS: ${args[@]}";
+
+        if [ "$command" == "meta" ]; then
+                echo "Command not found";
+        else
+                $command ${args[@]}
+        fi;
+}
+
+
+function meta-help {
+        echo "You are doing it wrong: $@";
+}
+
+
+invoke_meta_command "meta" $@
