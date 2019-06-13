@@ -16,8 +16,7 @@
 #    * meta-COMMAND --BCP=complete ARGS means "Return completion info for yourself"
 #  
 
-BASE_COMMAND=$META_BASECMD;
-
+BASE_COMMAND=$(basename $0);
 
 function find_meta {
         local base="$1"; shift;
@@ -39,14 +38,11 @@ function invoke_meta_command {
         local command=${args[0]};
         unset args[0];
 
-        echo "COMMAND: $command";
-        echo "ARGS: ${args[@]}";
-
         if [ "$command" == $BASE_COMMAND ]; then
-                echo "Command not found";
-        else
-                $command ${args[@]}
+                command="main";
         fi;
+
+        $command ${args[@]}
 }
 
 
